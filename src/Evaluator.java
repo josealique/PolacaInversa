@@ -10,11 +10,25 @@ public class Evaluator {
         return 0;
     }
 
+    /*
+     Un - quita un + o -, *, /, ^
+     Un + quita un + o -, *, /, ^
+     Un * quita el / y ^
+     Un / quita el * y ^
+    */
+
     public static int calcRPN(Token[] list) {
         // Calcula el valor resultant d'avaluar la llista de tokens
-        String expr = "";
-        List<Token> output = new ArrayList<>();
-        Stack<Token> stack = new Stack<>();
-        return 0;
+        List<Token> salida = new ArrayList<>();
+        int resultado = 0;
+        for (int i = 0; i < list.length; i++) {
+            if (list[i].getTtype() == Token.Toktype.NUMBER){
+                resultado += list[i].getValue();
+                if (list[i].getTtype() == Token.Toktype.OP){
+
+                }
+            }
+        }
+        return resultado;
     }
 }

@@ -43,8 +43,16 @@ public class Token {
 
     // Mostra un token (conversió a String)
     public String toString() {
-       Token token = new Token();
-       return token.toString();
+        if (Token.tokNumber(value) != null){
+            return String.valueOf(value);
+        }
+        if (Token.tokParen(tk) != null){
+            return String.valueOf(tk);
+        }
+        if (Token.tokOp(tk) != null){
+            return String.valueOf(tk);
+        }
+        return toString();
     }
 
     // Mètode equals. Comprova si dos objectes Token són iguals
