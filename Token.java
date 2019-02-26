@@ -1,20 +1,27 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Token {
-    enum Toktype { NUMBER, OP, PAREN }
+    enum Toktype {
+        NUMBER, OP, PAREN
+    }
 
-    // Pensa a implementar els "getters" d'aquests atributs
-    private Toktype ttype;
+    private Token.Toktype ttype;
     private int value;
     private char tk;
 
-    public Toktype getTtype() { return ttype; }
+    // Getters
+    public Token.Toktype getTtype() {
+        return this.ttype;
+    }
+    public int getValue() {
+        return this.value;
+    }
+    public char getTk() {
+        return this.tk;
+    }
 
-    public int getValue() { return value; }
-
-    public char getTk() { return tk; }
-
-    // Constructor privat. Evita que es puguin construir objectes Token externament
+    // Private constructor (we don't want others to build tokens)
     private Token() {}
 
     // Torna un token de tipus "NUMBER"
@@ -42,63 +49,58 @@ public class Token {
     }
 
     // Mostra un token (conversió a String)
+    @Override
     public String toString() {
-        if (Token.tokNumber(value) != null){
-            return String.valueOf(value);
-        }
-        if (Token.tokParen(tk) != null){
-            return String.valueOf(tk);
-        }
-        if (Token.tokOp(tk) != null){
-            return String.valueOf(tk);
-        }
-        return toString();
+        return String.valueOf(this.ttype);
     }
 
     // Mètode equals. Comprova si dos objectes Token són iguals
+    @Override
     public boolean equals(Object o) {
-        Token token = (Token) o;
-        return this.ttype == token.ttype;
+        if (o instanceof Token) {
+            Token t = (Token) o;
+            return (t.value == this.value) || (t.tk == this.tk);
+        }
+        return false;
     }
 
     // A partir d'un String, torna una llista de tokens
     public static Token[] getTokens(String expr) {
-        // Creamos una Lista
-        List<Token> t = new ArrayList<>();
+        List<Token> tokens = new ArrayList<>();
         for (int i = 0; i < expr.length(); i++) {
-            // Si encuentra un espacio continua
-            if (expr.charAt(i) == ' '){
-                continue;
-            }
-            /* Si el caracter no es un operador crearemos una variable de tipo int
-            para poder guardar el numero en la lista
-             */
-            if (!operadores(expr.charAt(i))){
-                int numero = 0;
-                for (int j = i; j < expr.length(); j++) {
-                    if (operadores(expr.charAt(j))){
-                        break;
-                    }
-                    numero += j;
-                    i = j;
-                }
-                t.add(Token.tokNumber(numero));
-            } else if (EsParentesis(expr.charAt(i))) {
-                t.add(Token.tokParen(expr.charAt(i)));
-            } else if (operadores(expr.charAt(i))) {
-                t.add(Token.tokOp(expr.charAt(i)));
+            if (Character.isDigit(expr.charAt(i))) {
+                i = addNumber(tokens, i, expr);
+            } else if (expr.charAt(i) != ' '){
+                checkChar(expr.charAt(i), tokens);
             }
         }
-        return t.toArray(new Token[t.size()]);
+        return tokens.toArray(new Token[tokens.size()]);
     }
 
-    // Método que comprueba los paréntesis
-    static boolean EsParentesis(char c){
-        return (c == '(' || c == ')');
+    // Método que comprueba si el carácter es un operador o un paréntesis
+    private static void checkChar(char c, List<Token> tokens) {
+        if (c == '+' || c == '-' || c == '*' || c == '/'){
+            tokens.add(Token.tokOp(c));
+        } else if (c == '(' || c == ')' ) {
+            tokens.add(Token.tokParen(c));
+        }
     }
 
-    // Método que comprueba los operadores
-    static boolean operadores(char c){
-        return (c == ' ' || c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')');
+    /* Si es un token de multiplicación o división, devolvemos 2 sino 1.
+     Ya que la suma y la resta tienen menos preferencia */
+    public static int getPrecedence(Token t) {
+        return !(t.getTk() == '+' || t.getTk() == '-') ? 2 : 1;
+    }
+
+    // Método que añade los numeros correspondientes a la lista de Tokens
+    private static int addNumber(List<Token> tokens, int i, String expr){
+        StringBuilder actualToken = new StringBuilder();
+        for (int j = i; j < expr.length(); j++) {
+            if (!Character.isDigit(expr.charAt(j))) { break; }
+            actualToken.append(expr.charAt(j));
+            i = j;
+        }
+        tokens.add(Token.tokNumber(Integer.parseInt(actualToken.toString())));
+        return i;
     }
 }
